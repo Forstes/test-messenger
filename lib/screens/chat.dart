@@ -111,18 +111,23 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
 
                   return Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       if (showSeparator) DateSeparator(date: formatSeparatorDate(msg.dateDelivered)),
-                      ChatBubble(message: msg),
+                      AppChatBubble(message: msg),
                     ],
                   );
                 },
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-            child: BottomChatPanel(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+            child: BottomChatPanel(
+              onSendMessage: (msg) {
+                setState(() => messages.insert(0, msg));
+              },
+            ),
           ),
         ],
       ),
