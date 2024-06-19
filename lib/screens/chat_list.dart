@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:messenger/cubit/chat_cubit.dart';
 import 'package:messenger/models/chat_litst_item.dart';
-import 'package:messenger/models/contact.dart';
-import 'package:messenger/models/message.dart';
 import 'package:messenger/widgets/chat_tile.dart';
 
 class ChatListScreen extends StatefulWidget {
@@ -13,19 +13,10 @@ class ChatListScreen extends StatefulWidget {
 }
 
 class ChatListScreenState extends State<ChatListScreen> {
-  final List<ChatListItem> chats = [
-    ChatListItem(
-        contact: Contact(id: 1, isOnline: true, name: "Александр Плюшкин"),
-        lastMsg: Message(
-          dateDelivered: DateTime.now().subtract(const Duration(minutes: 1)),
-          text: "Поешь",
-          isReaded: true,
-          isFromOtherUser: false,
-        ))
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final chatCubit = BlocProvider.of<ChatCubit>(context);
+
     return Scaffold(
       appBar: AppBar(
           title: const Text(
@@ -59,17 +50,27 @@ class ChatListScreenState extends State<ChatListScreen> {
                 ),
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
               ),
+              onChanged: (v) => chatCubit.searchByContactName(v),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: chats.length,
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                    onTap: () {
-                      context.pushNamed("chat", pathParameters: {"contactId": chats[index].contact.id.toString()});
-                    },
-                    child: ChatTile(chat: chats[index]));
+            child: BlocBuilder<ChatCubit, ChatState>(
+              buildWhen: (previous, current) => current is ChatListUpdated,
+              builder: (context, state) {
+                List<ChatListItem> chats = [];
+                if (state is ChatListUpdated) chats = state.chats;
+
+                return ListView.builder(
+                  itemCount: chats.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                        onTap: () {
+                          chatCubit.loadChatData(chats[index].contact.id);
+                          context.pushNamed("chat", pathParameters: {"contactId": chats[index].contact.id.toString()});
+                        },
+                        child: ChatTile(chat: chats[index]));
+                  },
+                );
               },
             ),
           ),

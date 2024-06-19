@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:messenger/cubit/chat_cubit.dart';
 import 'package:messenger/models/message.dart';
 import 'package:messenger/utils/date_time.dart';
 import 'package:messenger/utils/initials.dart';
@@ -17,71 +19,44 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final List<Message> messages = [
-    Message(
-        text: "Помоги!",
-        dateDelivered: DateTime.now().subtract(const Duration(minutes: 6)),
-        isReaded: true,
-        isFromOtherUser: true),
-    Message(
-        text: "Помоги!",
-        dateDelivered: DateTime.now().subtract(const Duration(minutes: 7)),
-        isReaded: true,
-        isFromOtherUser: true),
-    Message(
-        text: "Чего тебе?",
-        dateDelivered: DateTime.now().subtract(const Duration(days: 1, hours: 14)),
-        isReaded: true,
-        isFromOtherUser: false),
-    Message(
-        text: "Чего тебе?",
-        dateDelivered: DateTime.now().subtract(const Duration(days: 1, hours: 15)),
-        isReaded: true,
-        isFromOtherUser: false),
-    Message(
-        text: "ЭЙ!",
-        dateDelivered: DateTime.now().subtract(const Duration(days: 2)),
-        isReaded: true,
-        isFromOtherUser: false),
-    Message(
-        text: "А??",
-        dateDelivered: DateTime.now().subtract(const Duration(days: 2)),
-        isReaded: true,
-        isFromOtherUser: false),
-    Message(
-        text: "А??",
-        dateDelivered: DateTime.now().subtract(const Duration(days: 2)),
-        isReaded: true,
-        isFromOtherUser: true),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final chatCubit = BlocProvider.of<ChatCubit>(context);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(65.0),
         child: AppBar(
-          title: Row(children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundColor: Colors.lightBlue,
-              child: Text(
-                getInitials("Виктор Власов"),
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Александр Плюшкин',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text("В сети", style: TextStyle(fontSize: 14, color: Colors.black54)),
-              ],
-            )
-          ]),
+          title: BlocBuilder<ChatCubit, ChatState>(
+            buildWhen: (previous, current) => current is ChatDataLoaded,
+            builder: (context, state) {
+              if (state is ChatDataLoaded) {
+                return Row(children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.lightBlue,
+                    child: Text(
+                      getInitials(state.contact.name),
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.contact.name,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(state.contact.isOnline ? "В сети" : "Не в сети",
+                          style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                    ],
+                  )
+                ]);
+              }
+              return const SizedBox();
+            },
+          ),
           leading: GestureDetector(
             child: const Icon(Icons.chevron_left, size: 35),
             onTap: () => context.pop(),
@@ -100,27 +75,36 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: ListView.builder(
-                reverse: true,
-                itemCount: messages.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final msg = messages[index];
-                  bool showSeparator = false;
-                  bool withTail = true;
+              child: BlocBuilder<ChatCubit, ChatState>(
+                buildWhen: (previous, current) => current is MessagesListUpdated,
+                builder: (context, state) {
+                  List<Message> messages = [];
 
-                  if (index < messages.length - 1) {
-                    showSeparator = _separatorShown(msg.dateDelivered, messages[index + 1].dateDelivered);
-                  }
-                  if (index > 0) {
-                    withTail = msg.isFromOtherUser != messages[index - 1].isFromOtherUser;
-                  }
+                  if (state is MessagesListUpdated) messages = state.messages;
 
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (showSeparator) DateSeparator(date: formatSeparatorDate(msg.dateDelivered)),
-                      AppChatBubble(message: msg, isWithTail: withTail),
-                    ],
+                  return ListView.builder(
+                    reverse: true,
+                    itemCount: messages.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final msg = messages[index];
+                      bool showSeparator = false;
+                      bool withTail = true;
+
+                      if (index < messages.length - 1) {
+                        showSeparator = _separatorShown(msg.dateDelivered, messages[index + 1].dateDelivered);
+                      }
+                      if (index > 0) {
+                        withTail = msg.isFromOtherUser != messages[index - 1].isFromOtherUser;
+                      }
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (showSeparator) DateSeparator(date: formatSeparatorDate(msg.dateDelivered)),
+                          AppChatBubble(message: msg, isWithTail: withTail),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
@@ -130,8 +114,9 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
             child: BottomChatPanel(
               onSendMessage: (msg) {
-                setState(() => messages.insert(0, msg));
+                setState(() => chatCubit.addMessage(widget.contactId, msg));
               },
+              contactId: widget.contactId,
             ),
           ),
         ],

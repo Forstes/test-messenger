@@ -4,17 +4,22 @@ import 'package:messenger/models/message.dart';
 import 'package:messenger/widgets/image_uploaded_modal.dart';
 
 class BottomChatPanel extends StatelessWidget {
-  BottomChatPanel({super.key, required this.onSendMessage});
+  BottomChatPanel({super.key, required this.onSendMessage, required this.contactId});
 
   final ImagePicker _picker = ImagePicker();
   final Function(Message) onSendMessage;
   final TextEditingController _contoller = TextEditingController();
+  final int contactId;
 
   void _sendMsg() {
     if (_contoller.text.isEmpty) return;
 
-    final Message msg =
-        Message(isFromOtherUser: false, text: _contoller.text.trim(), dateDelivered: DateTime.now(), isReaded: true);
+    final Message msg = Message(
+        isFromOtherUser: false,
+        text: _contoller.text.trim(),
+        dateDelivered: DateTime.now(),
+        isReaded: true,
+        contactId: contactId);
     onSendMessage(msg);
 
     _contoller.clear();
@@ -36,6 +41,7 @@ class BottomChatPanel extends StatelessWidget {
                         onSubmit: (v) {
                           onSendMessage(Message(
                               isFromOtherUser: false,
+                              contactId: contactId,
                               text: v.text,
                               dateDelivered: DateTime.now(),
                               attachedImg: v.image,
