@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:messenger/models/chat_litst_item.dart';
 import 'package:messenger/utils/date_time.dart';
 import 'package:messenger/utils/initials.dart';
+import 'package:messenger/utils/text.dart';
 
 class ChatTile extends StatelessWidget {
   final ChatListItem chat;
@@ -48,8 +49,11 @@ class ChatTile extends StatelessWidget {
                       text: TextSpan(
                         style: const TextStyle(fontSize: 12),
                         children: <TextSpan>[
-                          if (!chat.lastMsg!.isFromOtherUser) const TextSpan(text: "Вы: "),
-                          TextSpan(text: chat.lastMsg!.text, style: const TextStyle(color: Colors.black54)),
+                          if (!chat.lastMsg!.isFromOtherUser)
+                            const TextSpan(text: "Вы: ", style: TextStyle(color: Colors.black)),
+                          TextSpan(
+                              text: truncateText(chat.lastMsg!.text, 15),
+                              style: const TextStyle(color: Colors.black54)),
                         ],
                       ),
                     ),
