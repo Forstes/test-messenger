@@ -27,14 +27,18 @@ class ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Чаты")),
+      appBar: AppBar(
+          title: const Text(
+        "Чаты",
+        style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
+      )),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(15, 20, 15, 30),
+            padding: const EdgeInsets.fromLTRB(15, 5, 15, 30),
             child: TextField(
               decoration: InputDecoration(
-                fillColor: Colors.grey.shade300,
+                fillColor: const Color(0xFFEDF2F6),
                 filled: true,
                 hintText: 'Поиск',
                 hintStyle: const TextStyle(color: Colors.grey),

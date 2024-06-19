@@ -44,9 +44,9 @@ class BottomChatPanel extends StatelessWidget {
                       ));
             }
           },
-          icon: const Icon(Icons.file_copy, size: 30),
+          icon: const Icon(Icons.attach_file, size: 28, color: Color(0xFF2B333E)),
           style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(Colors.grey.shade300),
+            backgroundColor: const WidgetStatePropertyAll(Color(0xFFEDF2F6)),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
@@ -54,14 +54,14 @@ class BottomChatPanel extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         Expanded(
           child: SizedBox(
             height: 50,
             child: TextField(
               controller: _contoller,
               decoration: InputDecoration(
-                fillColor: Colors.grey.shade300,
+                fillColor: const Color(0xFFEDF2F6),
                 filled: true,
                 hintText: 'Сообщение',
                 hintStyle: const TextStyle(color: Colors.grey),
@@ -82,10 +82,7 @@ class BottomChatPanel extends StatelessWidget {
                 ),
                 suffixIcon: IconButton(
                   onPressed: _sendMsg,
-                  icon: const Icon(
-                    Icons.send,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.send),
                 ),
               ),
               maxLines: 5,
@@ -93,12 +90,12 @@ class BottomChatPanel extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         IconButton.filled(
           onPressed: () {},
-          icon: const Icon(Icons.mic, size: 30),
+          icon: const Icon(Icons.mic_none, size: 30, color: Color(0xFF2B333E)),
           style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(Colors.grey.shade300),
+            backgroundColor: const WidgetStatePropertyAll(Color(0xFFEDF2F6)),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),

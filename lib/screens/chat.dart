@@ -106,15 +106,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   final msg = messages[index];
                   bool showSeparator = false;
+                  bool withTail = true;
+
                   if (index < messages.length - 1) {
                     showSeparator = _separatorShown(msg.dateDelivered, messages[index + 1].dateDelivered);
+                  }
+                  if (index > 0) {
+                    withTail = msg.isFromOtherUser != messages[index - 1].isFromOtherUser;
                   }
 
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (showSeparator) DateSeparator(date: formatSeparatorDate(msg.dateDelivered)),
-                      AppChatBubble(message: msg),
+                      AppChatBubble(message: msg, isWithTail: withTail),
                     ],
                   );
                 },

@@ -40,12 +40,13 @@ class ChatTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(chat.contact.name, style: const TextStyle(height: 1.4, fontWeight: FontWeight.bold)),
+                  Text(chat.contact.name,
+                      style: const TextStyle(height: 1.4, fontWeight: FontWeight.w600, fontSize: 15)),
                   if (chat.lastMsg != null)
                     RichText(
                       textDirection: TextDirection.ltr,
                       text: TextSpan(
-                        style: const TextStyle(fontSize: 13),
+                        style: const TextStyle(fontSize: 12),
                         children: <TextSpan>[
                           if (!chat.lastMsg!.isFromOtherUser) const TextSpan(text: "Вы: "),
                           TextSpan(text: chat.lastMsg!.text, style: const TextStyle(color: Colors.black54)),
